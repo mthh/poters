@@ -1,0 +1,5 @@
+{"values":[
+{"lat":0, "lon": 0, "value": 7},
+{"lat":0, "lon": 5, "value": 8},
+{"lat":5, "lon": 5, "value": 9},
+{"lat":5, "lon": 0, "value": 10}]}
