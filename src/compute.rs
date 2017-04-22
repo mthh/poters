@@ -2,6 +2,7 @@ use rustc_serialize::json;
 use std::f64;
 use std::fs::File;
 use std::io::{Read,Write};
+use csv;
 use errors::*;
 
 const PI:f64 = f64::consts::PI;
@@ -86,6 +87,7 @@ fn paretopot(pot: f64, dst: f64, range: f64) -> f64 {
     pot * (1.0 / (1.0 + (2.0 / range * tmp.powi(2) )))
 }
 
+
 pub fn parse_json_points(path: &str) -> Result<Vec<PtValue>> {
     let mut file = File::open(path)?;
     let mut raw_json = String::new();
@@ -109,6 +111,16 @@ pub fn save_json_points(path: &str, obs_points: Vec<Vec<PtValue>>) -> Result<()>
     let mut file = File::create(path)?;
     file.write(encoded.as_bytes())?;
     Ok(())
+}
+
+pub fn parse_csv_points(path: &str) -> Result<Vec<PtValue>> {
+    let mut rdr = csv::Reader::from_file(path)?;
+    let mut res = Vec::new();
+    for record in rdr.decode() {
+        let (lat, lon, val): (f64, f64, f64) = record?;
+        res.push(PtValue::new(lat * PI / 180.0, lon * PI / 180.0, val));
+    }
+    Ok(res)
 }
 
 pub fn smooth(reso_lat: u32, reso_lon: u32, bbox: Bbox, obs_points: &mut [PtValue], configuration: Config) -> Result<Vec<Vec<PtValue>>> {
@@ -170,7 +182,7 @@ fn do_smooth(bbox: &Bbox, lon_step: f64, lat_step: f64, range: f64, lon_range: u
 			if imin < 0 { imin = 0; }
 			if imax > lat_range { imax = lat_range; }
 
-			let deltalon = (((range / 6368.0).cos() - clat.sin().powi(2)) / clat.cos().powi(2)).acos();
+			let deltalon = (((range / 6368.0).cos() - (clat.sin()).powi(2)) / (clat.cos()).powi(2)).acos();
 			let lonmax = clon + deltalon;
 			let lonmin = clon - deltalon;
 
@@ -181,16 +193,16 @@ fn do_smooth(bbox: &Bbox, lon_step: f64, lat_step: f64, range: f64, lon_range: u
                 jmax = lon_range;
             }
 
-            let mut contrib = Vec::with_capacity((imax as i32 - imin as i32 + 1) as usize);
-            for _ in 0..(imax as i32 - imin as i32 + 1) {
-                contrib.push(vec![0.0; (jmax - jmin + 1) as usize]);
+            let mut contrib = Vec::with_capacity((imax as i32 - imin as i32) as usize);
+            for _ in 0..(imax as i32 - imin as i32) {
+                contrib.push(vec![0.0; (jmax - jmin) as usize]);
             }
-
             for i in imin..imax as i32 {
                 for j in jmin..jmax {
-                    let tmp = 6368.0 * ((bbox_lat_min + lat_step * i as f64).cos() * clat.cos() *
-                            ((bbox_lon_min + lon_step * j as f64).cos() * clon.cos() + (bbox_lon_min + lon_step * j as f64).sin() * clon.sin())
-                            + (bbox_lat_min + lat_step * i as f64).sin() * clat.sin()).acos();
+                    let ii = i as f64;
+                    let jj = j as f64;
+                    let tmp = 6368.0 * ((bbox_lat_min + lat_step * ii).cos() * clat.cos() * ( (bbox_lon_min + lon_step * jj).cos() * clon.cos() + (bbox_lon_min + lon_step * jj).sin() * clon.sin()) + (bbox_lat_min + lat_step * ii).sin() *clat.sin()).acos();
+
                     if tmp < range {
                         contrib[(i - imin) as usize][(j - jmin) as usize] = smooth_func(pot, tmp, range);
                         sum += contrib[(i - imin) as usize][(j - jmin) as usize];

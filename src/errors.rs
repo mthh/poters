@@ -3,5 +3,6 @@ error_chain! {
         Io(::std::io::Error);
         JsonDecoder(::rustc_serialize::json::DecoderError);
         JsonEncoder(::rustc_serialize::json::EncoderError);
+        CsvError(::csv::Error);
     }
 }
