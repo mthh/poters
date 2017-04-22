@@ -5,3 +5,4 @@ authors = ["mthh <matthieu.viry@cnrs.fr>"]
 
 [dependencies]
 rustc-serialize = "0.3"
+error-chain = "0.10"
