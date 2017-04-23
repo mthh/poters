@@ -1,9 +1,10 @@
 ## poters
-
+[![Build Status](https://travis-ci.org/mthh/magrit.svg?branch=master)](https://travis-ci.org/mthh/magrit)
+  
 Rust library and CLI utility to compute **neighbourhood population potential** with scale control.
 Expect an input of observation points caracterised by a latitude, a longitude and a stock value :
 
-### CLI usage reference ;
+#### CLI usage reference:
 ```
 USAGE:
     poters --function <FUNCTION> --input <FILE> --output <FILE> --range <RANGE> --scale <SCALE> --window=<SCALE>
@@ -13,7 +14,7 @@ OPTIONS:
             Name of the smoothing function, chosen among:
             disk, amortized_disk, gaussian, pareto, exponential.
     -i, --input <FILE>
-            Input file to use (.csv or .json)
+            Input file to use (.csv or .json).
     -o, --output <FILE>
             Path for output file (json format).
     -r, --range <RANGE>
@@ -22,11 +23,11 @@ OPTIONS:
     -s, --scale <SCALE>
             Resolution of the output in kilometers as ResoLat-ResoLon.
     -w, --window=<SCALE>
-            Coordinate of the visualisation window, given in degrees as minimum
-            latitude,minimum longitude,maximum latitude,maximum longitude
+            Coordinate of the visualisation window, given in degrees as:
+            minimum latitude,minimum longitude,maximum latitude,maximum longitude
 ```
 
-### Example usage :
+#### Example usage:
 ```
 poters --input tests/data_1.in \
         --output output.json \
@@ -36,7 +37,7 @@ poters --input tests/data_1.in \
         --function amortized_disk
 ```
 
-### Expected input for CLI tool :
+#### Expected input for CLI tool:
 - using JSON format:  
 *input.json*
 ```
@@ -57,16 +58,17 @@ poters --input tests/data_1.in \
 5.0, 0.0, 10.0
 ```
 
-### Installation ;
+#### Installation:
 With a recent version of cargo :
 ```
 cargo install --git https://github.com/mthh/poters
 ```
 
-### Using as a library :
+#### Using as a library:
 Inlude the following line in your `Cargo.toml` file :
 ```
 poters =  { git = "https://github.com/mthh/poters" }
 ```
+
 
 Translation of [hyantes](http://hyantes.gforge.inria.fr/)/hyantesite library, originally authored by *Sebastien Martinez* and *Serge Guelton*, under CeCILL-C License.
