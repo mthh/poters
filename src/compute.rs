@@ -1,7 +1,8 @@
 use errors::*;
 use std::f64;
 
-const PI:f64 = f64::consts::PI;
+static PI:f64 = f64::consts::PI;
+static DEG2RAD: f64 = f64::consts::PI / 180.0;
 
 #[derive(Debug)]
 pub enum FuncNames {
@@ -82,29 +83,49 @@ fn paretopot(pot: f64, dst: f64, range: f64) -> f64 {
     pot * (1.0 / (1.0 + (2.0 / range * tmp.powi(2) )))
 }
 
+// pub fn smooth(reso_lat: u32, reso_lon: u32, bbox: Bbox, obs_points: &mut [PtValue], configuration: Config) -> Result<Vec<Vec<PtValue>>> {
+//     let mut plots = Vec::with_capacity(reso_lat as usize);
+//     for _ in 0..reso_lat {
+//         plots.push(vec![PtValue{lat: 0.0, lon: 0.0, value: 0.0}; reso_lon as usize]);
+//     }
+//     let mut lon_step = (bbox.max_lon - bbox.min_lon) / reso_lon as f64;
+//     let mut lat_step = (bbox.max_lat - bbox.min_lat) / reso_lat as f64;
+//     let range = configuration.fparam;
+//     for i in 0..reso_lat as usize {
+//         for j in 0..reso_lon as usize {
+//             plots[i][j] = PtValue {
+//                 lat: bbox.min_lat + lat_step * i as f64,
+//                 lon: bbox.min_lon + lon_step * j as f64,
+//                 value: 0.0
+//             };
+//         }
+//     }
+// 	lon_step *= PI / 180.0;
+// 	lat_step *= PI / 180.0;
+//     do_smooth(&bbox, lon_step, lat_step, range, reso_lon, reso_lat,
+//               &mut plots, obs_points, configuration.smoothing_fun_t);
+//     Ok(plots)
+// }
+
 pub fn smooth(reso_lat: u32, reso_lon: u32, bbox: Bbox, obs_points: &mut [PtValue], configuration: Config) -> Result<Vec<Vec<PtValue>>> {
-    let mut plots = Vec::with_capacity(reso_lat as usize);
-    for _ in 0..reso_lat {
-        plots.push(vec![PtValue{lat: 0.0, lon: 0.0, value: 0.0}; reso_lon as usize]);
-    }
     let mut lon_step = (bbox.max_lon - bbox.min_lon) / reso_lon as f64;
     let mut lat_step = (bbox.max_lat - bbox.min_lat) / reso_lat as f64;
     let range = configuration.fparam;
-    for i in 0..reso_lat as usize {
-        for j in 0..reso_lon as usize {
-            plots[i][j] = PtValue {
-                lat: bbox.min_lat + lat_step * i as f64,
-                lon: bbox.min_lon + lon_step * j as f64,
-                value: 0.0
-            };
+    let mut plots = Vec::with_capacity(reso_lat as usize);
+    for i in 0..plots.capacity() {
+        let mut ivec = Vec::with_capacity(reso_lon as usize);
+        for j in 0..ivec.capacity() {
+            ivec.push(PtValue{lat: bbox.min_lat + lat_step * i as f64, lon: bbox.min_lon + lon_step * j as f64, value: 0.0})
         }
+        plots.push(ivec)
     }
-	lon_step *= PI / 180.0;
-	lat_step *= PI / 180.0;
+	lon_step *= DEG2RAD;
+	lat_step *= DEG2RAD;
     do_smooth(&bbox, lon_step, lat_step, range, reso_lon, reso_lat,
               &mut plots, obs_points, configuration.smoothing_fun_t);
     Ok(plots)
 }
+
 
 fn do_smooth(bbox: &Bbox, lon_step: f64, lat_step: f64, range: f64, lon_range: u32, lat_range: u32,
              plots: &mut Vec<Vec<PtValue>>, obs_points: &[PtValue], func: FuncNames){
@@ -115,8 +136,8 @@ fn do_smooth(bbox: &Bbox, lon_step: f64, lat_step: f64, range: f64, lon_range: u
         FuncNames::Exponential => exponential,
         FuncNames::Pareto => paretopot
     };
-    let bbox_lon_min = bbox.min_lon * PI / 180.0;
-    let bbox_lat_min = bbox.min_lat * PI / 180.0;
+    let bbox_lon_min = bbox.min_lon * DEG2RAD;
+    let bbox_lat_min = bbox.min_lat * DEG2RAD;
     let nb = obs_points.len();
     let mut obs_pt_sum = 0.0;
     let mut total_sum = 0.0;

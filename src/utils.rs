@@ -6,7 +6,8 @@ use csv;
 use errors::*;
 use compute::PtValue;
 
-const PI:f64 = f64::consts::PI;
+static DEG2RAD: f64 = f64::consts::PI / 180.0;
+
 
 #[derive(RustcDecodable,RustcEncodable)]
 pub struct ValuesJson  {
@@ -21,7 +22,7 @@ pub fn parse_json_points(path: &str) -> Result<Vec<PtValue>> {
     let mut res = Vec::with_capacity(decoded.values.len());
     for elem in decoded.values.iter(){
         let (lat, lon, val) = elem.get_triplet();
-        res.push(PtValue::new(lat * PI / 180.0, lon * PI / 180.0, val));
+        res.push(PtValue::new(lat * DEG2RAD, lon * DEG2RAD, val));
     }
     Ok(res)
 }
@@ -44,7 +45,7 @@ pub fn parse_csv_points(path: &str) -> Result<Vec<PtValue>> {
     let mut res = Vec::new();
     for record in rdr.decode() {
         let (lat, lon, val): (f64, f64, f64) = record?;
-        res.push(PtValue::new(lat * PI / 180.0, lon * PI / 180.0, val));
+        res.push(PtValue::new(lat * DEG2RAD, lon * DEG2RAD, val));
     }
     Ok(res)
 }
