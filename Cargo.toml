@@ -7,3 +7,5 @@ authors = ["mthh <matthieu.viry@cnrs.fr>"]
 rustc-serialize = "0.3"
 error-chain = "0.10"
 csv = "0.15"
+clap = "2.23"
+scan-rules = "0.2.0"

@@ -1,9 +1,5 @@
-use rustc_serialize::json;
-use std::f64;
-use std::fs::File;
-use std::io::{Read,Write};
-use csv;
 use errors::*;
+use std::f64;
 
 const PI:f64 = f64::consts::PI;
 
@@ -41,6 +37,7 @@ impl Bbox {
         Bbox {min_lat: min_lat, max_lat: max_lat, min_lon: min_lon, max_lon: max_lon}
     }
 }
+
 #[derive(Debug,Clone)]
 #[derive(RustcDecodable,RustcEncodable)]
 pub struct PtValue {
@@ -49,15 +46,13 @@ pub struct PtValue {
     value: f64
 }
 
-#[derive(RustcDecodable,RustcEncodable)]
-pub struct ValuesJson  {
-    values: Vec<PtValue>
-}
-
 impl PtValue {
     #[inline(always)]
     pub fn new(lat: f64, lon: f64, value: f64) -> PtValue {
         PtValue {lat: lat, lon: lon, value: value}
+    }
+    pub fn get_triplet(&self) -> (f64, f64, f64) {
+        (self.lat, self.lon, self.value)
     }
 }
 
@@ -85,42 +80,6 @@ fn exponential(pot: f64, dst: f64, range: f64) -> f64 {
 fn paretopot(pot: f64, dst: f64, range: f64) -> f64 {
     let tmp = dst.powi(2);
     pot * (1.0 / (1.0 + (2.0 / range * tmp.powi(2) )))
-}
-
-
-pub fn parse_json_points(path: &str) -> Result<Vec<PtValue>> {
-    let mut file = File::open(path)?;
-    let mut raw_json = String::new();
-    file.read_to_string(&mut raw_json)?;
-    let decoded: ValuesJson = json::decode(&raw_json)?;
-    let mut res = Vec::with_capacity(decoded.values.len());
-    for elem in decoded.values.iter(){
-        res.push(PtValue::new(elem.lat * PI / 180.0, elem.lon * PI / 180.0, elem.value));
-    }
-    Ok(res)
-}
-
-pub fn save_json_points(path: &str, obs_points: Vec<Vec<PtValue>>) -> Result<()> {
-    let mut res = Vec::new();
-    for arr in obs_points.iter(){
-        for elem in arr.iter(){
-            res.push(elem);
-        }
-    }
-    let encoded = json::encode(&res)?;
-    let mut file = File::create(path)?;
-    file.write(encoded.as_bytes())?;
-    Ok(())
-}
-
-pub fn parse_csv_points(path: &str) -> Result<Vec<PtValue>> {
-    let mut rdr = csv::Reader::from_file(path)?;
-    let mut res = Vec::new();
-    for record in rdr.decode() {
-        let (lat, lon, val): (f64, f64, f64) = record?;
-        res.push(PtValue::new(lat * PI / 180.0, lon * PI / 180.0, val));
-    }
-    Ok(res)
 }
 
 pub fn smooth(reso_lat: u32, reso_lon: u32, bbox: Bbox, obs_points: &mut [PtValue], configuration: Config) -> Result<Vec<Vec<PtValue>>> {
