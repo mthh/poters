@@ -3,6 +3,7 @@ use std::f64;
 use std::fs::File;
 use std::io::{Read,Write};
 use csv;
+use geojson;
 use errors::*;
 use compute::PtValue;
 
@@ -12,6 +13,33 @@ static DEG2RAD: f64 = f64::consts::PI / 180.0;
 #[derive(RustcDecodable,RustcEncodable)]
 pub struct ValuesJson  {
     values: Vec<PtValue>
+}
+
+pub fn parse_geojson_points(path: &str, field_name: &str) -> Result<Vec<PtValue>> {
+    let mut file = File::open(path)?;
+    let mut raw_json = String::new();
+    file.read_to_string(&mut raw_json)?;
+    let decoded_geojson = raw_json.parse::<geojson::GeoJson>()?;
+    let features = match decoded_geojson {
+        geojson::GeoJson::FeatureCollection(collection) => collection.features,
+        _ => return Err("Error: Expected a FeatureCollection".into())
+    };
+    let mut res = Vec::new();
+    for ft in features {
+        if let Some(ref geometry) = ft.geometry {
+            if let ::geojson::Value::Point(ref positions) = geometry.value {
+                let prop = ft.properties.unwrap();
+                let value = prop.get(field_name).unwrap();
+                let val = if value.is_number() {
+                    value.as_f64().unwrap()
+                } else {
+                    value.to_string().replace("\"", "").parse::<f64>()?
+                };
+                res.push(PtValue::new(positions[1] * DEG2RAD, positions[0] * DEG2RAD, val));
+            }
+        }
+    }
+    Ok(res)
 }
 
 pub fn parse_json_points(path: &str) -> Result<Vec<PtValue>> {

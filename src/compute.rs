@@ -83,29 +83,6 @@ fn paretopot(pot: f64, dst: f64, range: f64) -> f64 {
     pot * (1.0 / (1.0 + (2.0 / range * tmp.powi(2) )))
 }
 
-// pub fn smooth(reso_lat: u32, reso_lon: u32, bbox: Bbox, obs_points: &mut [PtValue], configuration: Config) -> Result<Vec<Vec<PtValue>>> {
-//     let mut plots = Vec::with_capacity(reso_lat as usize);
-//     for _ in 0..reso_lat {
-//         plots.push(vec![PtValue{lat: 0.0, lon: 0.0, value: 0.0}; reso_lon as usize]);
-//     }
-//     let mut lon_step = (bbox.max_lon - bbox.min_lon) / reso_lon as f64;
-//     let mut lat_step = (bbox.max_lat - bbox.min_lat) / reso_lat as f64;
-//     let range = configuration.fparam;
-//     for i in 0..reso_lat as usize {
-//         for j in 0..reso_lon as usize {
-//             plots[i][j] = PtValue {
-//                 lat: bbox.min_lat + lat_step * i as f64,
-//                 lon: bbox.min_lon + lon_step * j as f64,
-//                 value: 0.0
-//             };
-//         }
-//     }
-// 	lon_step *= PI / 180.0;
-// 	lat_step *= PI / 180.0;
-//     do_smooth(&bbox, lon_step, lat_step, range, reso_lon, reso_lat,
-//               &mut plots, obs_points, configuration.smoothing_fun_t);
-//     Ok(plots)
-// }
 
 pub fn smooth(reso_lat: u32, reso_lon: u32, bbox: Bbox, obs_points: &mut [PtValue], configuration: Config) -> Result<Vec<Vec<PtValue>>> {
     let mut lon_step = (bbox.max_lon - bbox.min_lon) / reso_lon as f64;

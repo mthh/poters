@@ -4,5 +4,7 @@ error_chain! {
         JsonDecoder(::rustc_serialize::json::DecoderError);
         JsonEncoder(::rustc_serialize::json::EncoderError);
         CsvError(::csv::Error);
+        GeoJsonError(::geojson::Error);
+        ParseFloatError(::std::num::ParseFloatError);
     }
 }

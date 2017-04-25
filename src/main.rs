@@ -2,7 +2,7 @@ extern crate clap;
 extern crate poters;
 #[macro_use] extern crate scan_rules;
 
-use poters::{Bbox, Config, FuncNames, parse_csv_points, parse_json_points, save_json_points, smooth};
+use poters::{Bbox, Config, FuncNames, parse_csv_points, parse_json_points, parse_geojson_points, save_json_points, smooth};
 use clap::{Arg, App};
 
 fn main(){
@@ -38,9 +38,20 @@ fn main(){
              .required(true).takes_value(true)
              .value_name("FILE")
              .help("Path for output file (json format)."))
+        .arg(Arg::with_name("field")
+            .short("c").long("field_name")
+            .takes_value(true)
+            .value_name("FIELD")
+            .help("(Required for GeoJSON input) Field name containing the stock values to use."))
         .get_matches();
     let file_path = matches.value_of("input").unwrap();
-    let mut obs_points = if file_path.contains("json") || file_path.contains("JSON") {
+    let mut obs_points = if file_path.contains("geojson") || file_path.contains("GEOJSON") {
+        let field_name = if matches.is_present("field") { matches.value_of("field") } else { None };
+        if field_name.is_none(){
+            panic!("Error: Field name is required for GeoJSON input (arg. --field=name).");
+        }
+        parse_geojson_points(file_path, field_name.unwrap()).unwrap()
+    } else if file_path.contains("json") || file_path.contains("JSON") {
         parse_json_points(file_path).unwrap()
     } else {
         parse_csv_points(file_path).unwrap()

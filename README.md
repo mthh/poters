@@ -1,13 +1,13 @@
 ## poters
 [![Build Status](https://travis-ci.org/mthh/magrit.svg?branch=master)](https://travis-ci.org/mthh/magrit)
-  
-Rust library and CLI utility to compute **neighbourhood population potential** with scale control.
-Expect an input of observation points caracterised by a latitude, a longitude and a stock value :
+
+Rust library and CLI utility to compute **neighbourhood population potential** with scale control.  
+Expect an input of observation points caracterised by a latitude, a longitude and a stock value (GeoJSON of points, csv, ...).
 
 #### CLI usage reference:
 ```
 USAGE:
-    poters --function <FUNCTION> --input <FILE> --output <FILE> --range <RANGE> --scale <SCALE> --window=<SCALE>
+    poters --function <FUNCTION> --input <FILE> --output <FILE> --range <RANGE> --scale <SCALE> --window=<SCALE> --field=<FIELD>
 
 OPTIONS:
     -f, --function <FUNCTION>
@@ -24,17 +24,21 @@ OPTIONS:
             Resolution of the output in kilometers as ResoLat-ResoLon.
     -w, --window=<SCALE>
             Coordinate of the visualisation window, given in degrees as:
-            minimum latitude,minimum longitude,maximum latitude,maximum longitude
+            minimum latitude, minimum longitude, maximum latitude, maximum longitude.
+    -c, --field_name <FIELD>
+            (Required for GeoJSON input) Field name containing the stock values to use.
+
 ```
 
-#### Example usage:
+#### Example usage (from a point GeoJSON layer):
 ```
-poters --input tests/data_1.in \
+poters --input tests/input_ra.geojson \
+        --field="value"
         --output output.json \
         --range 10 \
-        --scale 80-80 \
-        --window=-1,6,-1,6 \
-        --function amortized_disk
+        --scale 160-80 \
+        --window=1,4,32,35
+        --function gaussian
 ```
 
 #### Expected input for CLI tool:
@@ -57,6 +61,9 @@ poters --input tests/data_1.in \
 5.0, 5.0, 9.0
 5.0, 0.0, 10.0
 ```
+
+- using GeoJSON format (see [examples](https://github.com/mthh/poters/tree/master/examples) and [tests](https://github.com/mthh/poters/tree/master/tests) folders).  
+
 
 #### Installation:
 With a recent version of cargo :
