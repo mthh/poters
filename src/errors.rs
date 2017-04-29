@@ -1,8 +1,7 @@
 error_chain! {
     foreign_links {
         Io(::std::io::Error);
-        JsonDecoder(::rustc_serialize::json::DecoderError);
-        JsonEncoder(::rustc_serialize::json::EncoderError);
+        SerdeJsonError(::serde_json::Error);
         CsvError(::csv::Error);
         GeoJsonError(::geojson::Error);
         ParseFloatError(::std::num::ParseFloatError);

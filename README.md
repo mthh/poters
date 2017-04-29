@@ -7,7 +7,7 @@ Expect an input of observation points caracterised by a latitude, a longitude an
 #### CLI usage reference:
 ```
 USAGE:
-    poters --function <FUNCTION> --input <FILE> --output <FILE> --range <RANGE> --scale <SCALE> --window=<SCALE> --field=<FIELD>
+    poters --function <FUNCTION> --input <FILE> --output <FILE> --range <RANGE> --scale <SCALE> --window=<SCALE> --field_name=<FIELD>
 
 OPTIONS:
     -f, --function <FUNCTION>
@@ -33,7 +33,7 @@ OPTIONS:
 #### Example usage (from a point GeoJSON layer):
 ```
 poters --input tests/input_ra.geojson \
-        --field="value"
+        --field_name="value"
         --output output.json \
         --range 10 \
         --scale 160-80 \

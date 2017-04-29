@@ -45,7 +45,7 @@ fn main(){
             .help("(Required for GeoJSON input) Field name containing the stock values to use."))
         .get_matches();
     let file_path = matches.value_of("input").unwrap();
-    let mut obs_points = if file_path.contains("geojson") || file_path.contains("GEOJSON") {
+    let obs_points = if file_path.contains("geojson") || file_path.contains("GEOJSON") {
         let field_name = if matches.is_present("field") { matches.value_of("field") } else { None };
         if field_name.is_none(){
             panic!("Error: Field name is required for GeoJSON input (arg. --field=name).");
@@ -71,6 +71,6 @@ fn main(){
         let min_lat: f64, ",", let max_lat: f64, ",", let min_lon: f64, ",", let max_lon: f64));
     let configuration = Config::new(range, func_name);
     let bbox = Bbox::new(min_lat, max_lat, min_lon, max_lon);
-    let res = smooth(reso_lat as u32, reso_lon as u32, bbox, &mut obs_points, configuration).unwrap();
+    let res = smooth(reso_lat as u32, reso_lon as u32, &bbox, &obs_points, configuration).unwrap();
     save_json_points(matches.value_of("output").unwrap(), res).unwrap();
 }

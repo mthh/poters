@@ -40,7 +40,7 @@ impl Bbox {
 }
 
 #[derive(Debug,Clone)]
-#[derive(RustcDecodable,RustcEncodable)]
+#[derive(Serialize,Deserialize)]
 pub struct PtValue {
     lat: f64,
     lon: f64,
@@ -58,11 +58,13 @@ impl PtValue {
 }
 
 #[inline(always)]
+#[allow(unused_variables)]
 fn amortized_disk(pot: f64, dst: f64, range: f64) -> f64 {
     pot / (1.0 + dst)
 }
 
 #[inline(always)]
+#[allow(unused_variables)]
 fn disk(pot: f64, dst: f64, range: f64) -> f64 {
     pot
 }
@@ -84,7 +86,7 @@ fn paretopot(pot: f64, dst: f64, range: f64) -> f64 {
 }
 
 
-pub fn smooth(reso_lat: u32, reso_lon: u32, bbox: Bbox, obs_points: &mut [PtValue], configuration: Config) -> Result<Vec<Vec<PtValue>>> {
+pub fn smooth(reso_lat: u32, reso_lon: u32, bbox: &Bbox, obs_points: &[PtValue], configuration: Config) -> Result<Vec<Vec<PtValue>>> {
     let mut lon_step = (bbox.max_lon - bbox.min_lon) / reso_lon as f64;
     let mut lat_step = (bbox.max_lat - bbox.min_lat) / reso_lat as f64;
     let range = configuration.fparam;
@@ -98,7 +100,7 @@ pub fn smooth(reso_lat: u32, reso_lon: u32, bbox: Bbox, obs_points: &mut [PtValu
     }
 	lon_step *= DEG2RAD;
 	lat_step *= DEG2RAD;
-    do_smooth(&bbox, lon_step, lat_step, range, reso_lon, reso_lat,
+    do_smooth(bbox, lon_step, lat_step, range, reso_lon, reso_lat,
               &mut plots, obs_points, configuration.smoothing_fun_t);
     Ok(plots)
 }
