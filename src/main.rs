@@ -2,7 +2,7 @@ extern crate clap;
 extern crate poters;
 #[macro_use] extern crate scan_rules;
 
-use poters::{Bbox, Config, FuncNames, parse_csv_points, parse_json_points, parse_geojson_points, save_json_points, smooth};
+use poters::*;
 use clap::{Arg, App};
 
 fn main(){
@@ -72,5 +72,10 @@ fn main(){
     let configuration = Config::new(range, func_name);
     let bbox = Bbox::new(min_lat, max_lat, min_lon, max_lon);
     let res = smooth(reso_lat as u32, reso_lon as u32, &bbox, &obs_points, configuration).unwrap();
-    save_json_points(matches.value_of("output").unwrap(), res).unwrap();
+    let output_path = matches.value_of("output").unwrap();
+    if output_path.contains("geojson") {
+        save_geojson_points(output_path, res).unwrap();
+    } else {
+        save_json_points(output_path, res).unwrap();
+    }
 }

@@ -3,7 +3,7 @@ use std::f64;
 use std::fs::File;
 use std::io::{Read,Write};
 use csv;
-use geojson;
+use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
 use errors::*;
 use compute::PtValue;
 
@@ -19,9 +19,9 @@ pub fn parse_geojson_points(path: &str, field_name: &str) -> Result<Vec<PtValue>
     let mut file = File::open(path)?;
     let mut raw_json = String::new();
     file.read_to_string(&mut raw_json)?;
-    let decoded_geojson = raw_json.parse::<geojson::GeoJson>()?;
+    let decoded_geojson = raw_json.parse::<GeoJson>()?;
     let features = match decoded_geojson {
-        geojson::GeoJson::FeatureCollection(collection) => collection.features,
+        GeoJson::FeatureCollection(collection) => collection.features,
         _ => return Err("Error: expected a FeatureCollection".into())
     };
     let mut res = Vec::with_capacity(features.len());
@@ -78,9 +78,38 @@ pub fn parse_json_points(path: &str) -> Result<Vec<PtValue>> {
     Ok(res)
 }
 
-pub fn save_json_points(path: &str, obs_points: Vec<Vec<PtValue>>) -> Result<()> {
+pub fn save_geojson_points(path: &str, result_points: Vec<Vec<PtValue>>) -> Result<()> {
+    let mut features = Vec::with_capacity(result_points.len());
+    for arr in result_points.iter() {
+        for res_pt in arr {
+            let (lat, lon, value) = res_pt.get_triplet();
+            let geometry = Geometry::new(Value::Point(vec![lon, lat]));
+            let mut prop = serde_json::Map::new();
+            prop.insert(String::from("value"),  serde_json::to_value(value)?);
+            features.push(Feature {
+                bbox: None,
+                geometry: Some(geometry),
+                id: None,
+                foreign_members: None,
+                properties: Some(prop),
+            });
+        }
+    }
+    let feature_collection = FeatureCollection {
+        bbox: None,
+        features: features,
+        foreign_members: None
+    };
+    let serialized = GeoJson::from(feature_collection).to_string();
+    let mut file = File::create(path)?;
+    file.write(serialized.as_bytes())?;
+    Ok(())
+}
+
+
+pub fn save_json_points(path: &str, result_points: Vec<Vec<PtValue>>) -> Result<()> {
     let mut res = Vec::new();
-    for arr in obs_points.iter(){
+    for arr in result_points.iter(){
         for elem in arr.iter(){
             res.push(elem);
         }

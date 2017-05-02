@@ -14,9 +14,9 @@ OPTIONS:
             Name of the smoothing function, chosen among:
             disk, amortized_disk, gaussian, pareto, exponential.
     -i, --input <FILE>
-            Input file to use (.csv or .json).
+            Input file to use (.csv, .json or .geojson).
     -o, --output <FILE>
-            Path for output file (json format).
+            Path for output file (json or geojson format).
     -r, --range <RANGE>
             Smoothing range in kilometers, used as parameter of the interaction
             function.
@@ -34,12 +34,15 @@ OPTIONS:
 ```
 poters --input tests/input_ra.geojson \
         --field_name="value"
-        --output output.json \
+        --output output_points.geojson \
         --range 10 \
         --scale 160-80 \
         --window=1,4,32,35
         --function gaussian
 ```
+
+Depending on the extension provided, the result will be written as *json* or *geojson* format.  
+
 
 #### Expected input for CLI tool:
 - using JSON format:  

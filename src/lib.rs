@@ -15,7 +15,9 @@ extern crate error_chain;
 mod utils;
 mod compute;
 mod errors;
-pub use self::utils::{parse_csv_points, parse_json_points, parse_geojson_points, save_json_points, ValuesJson};
+pub use self::utils::{
+    parse_csv_points, parse_json_points, parse_geojson_points,
+    save_json_points, save_geojson_points, ValuesJson};
 pub use self::compute::{FuncNames, Config, Bbox, PtValue, smooth};
 pub use errors::*;
 
