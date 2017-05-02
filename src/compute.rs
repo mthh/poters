@@ -20,7 +20,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(range: f64, smoothing_fun: FuncNames) -> Config {
+    pub fn new(range: f64, smoothing_fun: FuncNames) -> Self {
         Config { fparam: range, smoothing_fun_t: smoothing_fun }
     }
 }
@@ -34,7 +34,7 @@ pub struct Bbox {
 }
 
 impl Bbox {
-    pub fn new(min_lat:f64, max_lat:f64, min_lon:f64, max_lon:f64) -> Bbox {
+    pub fn new(min_lat:f64, max_lat:f64, min_lon:f64, max_lon:f64) -> Self {
         Bbox {min_lat: min_lat, max_lat: max_lat, min_lon: min_lon, max_lon: max_lon}
     }
 }
@@ -49,7 +49,7 @@ pub struct PtValue {
 
 impl PtValue {
     #[inline(always)]
-    pub fn new(lat: f64, lon: f64, value: f64) -> PtValue {
+    pub fn new(lat: f64, lon: f64, value: f64) -> Self {
         PtValue {lat: lat, lon: lon, value: value}
     }
     pub fn get_triplet(&self) -> (f64, f64, f64) {

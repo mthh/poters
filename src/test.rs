@@ -4,7 +4,7 @@ mod test {
     use std::f64;
     const PI:f64 = f64::consts::PI;
 
-    pub fn almost_equal(a: f64, b: f64, epsilon: f64) -> bool {
+    fn almost_equal(a: f64, b: f64, epsilon: f64) -> bool {
     	let diff = (a - b).abs();
     	if a == b {
     		true
@@ -61,6 +61,24 @@ mod test {
         }
     }
 
+    macro_rules! verif_point_value_half_rad {
+        ($lat1:expr,$lon1:expr,$val1:expr,$lat2:expr,$lon2:expr,$val2:expr) => {
+            assert_eq!(true, almost_equal($lat1, $lat2 / PI * 180.0, 0.00001));
+            assert_eq!(true, almost_equal($lon1, $lon2 / PI * 180.0, 0.00001));
+            assert_eq!(true, almost_equal($val1, $val2, 0.00001));
+        };
+    }
+
+    fn flatten_result<T>(res: &Vec<Vec<T>>) -> Vec<&T> {
+        let mut flatten_res = Vec::new();
+        for arr in res.iter(){
+            for elem in arr.iter(){
+                flatten_res.push(elem.clone());
+            }
+        }
+        return flatten_res;
+    }
+
     #[test]
     fn test_gaussian_against_hyantes_output() {
         let obs_points = parse_json_points("tests/ra.json").unwrap();
@@ -68,19 +86,12 @@ mod test {
         let bbox = Bbox::new(1.0, 4.0, 32.0, 35.0);
         let res = smooth(160, 80, &bbox, &obs_points, configuration).unwrap();
         let hyantes_verif_point = parse_json_points("tests/ra_gaussian_output.json").unwrap();
-        let mut flatten_res = Vec::new();
-        for arr in res.iter(){
-            for elem in arr.iter(){
-                flatten_res.push(elem);
-            }
-        }
+        let flatten_res = flatten_result(&res);
         assert_eq!(hyantes_verif_point.len(), flatten_res.len());
         for i in 0..flatten_res.len() {
             let (res_lat, res_lon, res_value) = flatten_res[i].get_triplet();
             let (verif_lat, verif_lon, verif_value) = hyantes_verif_point[i].get_triplet();
-            assert_eq!(true, almost_equal(res_lat, verif_lat / PI * 180.0, 0.00001));
-            assert_eq!(true, almost_equal(res_lon, verif_lon / PI * 180.0, 0.00001));
-            assert_eq!(true, almost_equal(res_value, verif_value, 0.00001));
+            verif_point_value_half_rad!(res_lat, res_lon, res_value, verif_lat, verif_lon, verif_value);
 
         }
     }
@@ -92,20 +103,12 @@ mod test {
         let bbox = Bbox::new(1.0, 4.0, 32.0, 35.0);
         let res = smooth(160, 80, &bbox, &obs_points, configuration).unwrap();
         let hyantes_verif_point = parse_json_points("tests/ra_exponential_output.json").unwrap();
-        let mut flatten_res = Vec::new();
-        for arr in res.iter(){
-            for elem in arr.iter(){
-                flatten_res.push(elem);
-            }
-        }
+        let flatten_res = flatten_result(&res);
         assert_eq!(hyantes_verif_point.len(), flatten_res.len());
         for i in 0..flatten_res.len() {
             let (res_lat, res_lon, res_value) = flatten_res[i].get_triplet();
             let (verif_lat, verif_lon, verif_value) = hyantes_verif_point[i].get_triplet();
-            assert_eq!(true, almost_equal(res_lat, verif_lat / PI * 180.0, 0.00001));
-            assert_eq!(true, almost_equal(res_lon, verif_lon / PI * 180.0, 0.00001));
-            assert_eq!(true, almost_equal(res_value, verif_value, 0.00001));
-
+            verif_point_value_half_rad!(res_lat, res_lon, res_value, verif_lat, verif_lon, verif_value);
         }
     }
 
@@ -116,20 +119,12 @@ mod test {
         let bbox = Bbox::new(1.0, 4.0, 32.0, 35.0);
         let res = smooth(160, 80, &bbox, &obs_points, configuration).unwrap();
         let hyantes_verif_point = parse_json_points("tests/ra_amortized_output.json").unwrap();
-        let mut flatten_res = Vec::new();
-        for arr in res.iter(){
-            for elem in arr.iter(){
-                flatten_res.push(elem);
-            }
-        }
+        let flatten_res = flatten_result(&res);
         assert_eq!(hyantes_verif_point.len(), flatten_res.len());
         for i in 0..flatten_res.len() {
             let (res_lat, res_lon, res_value) = flatten_res[i].get_triplet();
             let (verif_lat, verif_lon, verif_value) = hyantes_verif_point[i].get_triplet();
-            assert_eq!(true, almost_equal(res_lat, verif_lat / PI * 180.0, 0.00001));
-            assert_eq!(true, almost_equal(res_lon, verif_lon / PI * 180.0, 0.00001));
-            assert_eq!(true, almost_equal(res_value, verif_value, 0.00001));
-
+            verif_point_value_half_rad!(res_lat, res_lon, res_value, verif_lat, verif_lon, verif_value);
         }
     }
 }
