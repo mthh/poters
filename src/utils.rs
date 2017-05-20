@@ -122,6 +122,7 @@ pub fn save_json_points(path: &str, result_points: Vec<Vec<PtValue>>) -> Result<
 
 pub fn parse_csv_points(path: &str) -> Result<Vec<PtValue>> {
     let mut rdr = csv::Reader::from_file(path)?;
+    rdr = rdr.has_headers(false);
     let mut res = Vec::new();
     for record in rdr.decode() {
         let (lat, lon, val): (f64, f64, f64) = record?;
