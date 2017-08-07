@@ -1,5 +1,5 @@
 ## poters
-[![Build Status](https://travis-ci.org/mthh/magrit.svg?branch=master)](https://travis-ci.org/mthh/magrit)
+[![Build Status](https://travis-ci.org/mthh/poters.svg?branch=master)](https://travis-ci.org/mthh/poters)
 
 Rust library and CLI utility to compute **neighbourhood population potential** with scale control.  
 Expect an input of observation points caracterised by a latitude, a longitude and a stock value (GeoJSON of points, csv, ...).
